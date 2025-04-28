@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nekoniwa-Network
 
-## Getting Started
+## 概要
 
-First, run the development server:
+Nekoniwa-Networkのホームページ
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 技術スタック
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### フロントエンド
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **React**: `^19.0.0`
+- **Next.js**: `15.3.1`
+- **React DOM**: `^19.0.0`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### スタイリング
 
-## Learn More
+- **Tailwind CSS**: `^4`
+- **tailwind-merge**: `^3.2.0`
+- **tw-animate-css**: `^1.2.8`
 
-To learn more about Next.js, take a look at the following resources:
+### フォーム管理
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **React Hook Form**: `^7.56.1`
+- **@hookform/resolvers**: `^5.0.1`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 状態管理
 
-## Deploy on Vercel
+- **Zustand**: `^5.0.3`
+- **@tanstack/react-query**: `^5.74.7`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 型定義と型チェック
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **TypeScript**: `^5`
+- **Zod**: `^3.24.3`
+
+### テスト
+
+- **Vitest**: `^3.1.2`
+- **@testing-library/react**: `^16.3.0`
+
+### コード品質ツール
+
+- **ESLint**: `^9`
+- **Prettier**: `^3.5.3`
+- **Husky**: `^9.1.7`
+- **Lint-staged**: `^15.5.1`
+
+### ビルドツール
+
+- **PNPM**: `10.9.0`
+- **PostCSS**: `8.5.3`
+- **@tailwindcss/postcss**: `^4`
+
+### その他
+
+- **clsx**: `^2.1.1`
+- **lucide-react**: `^0.503.0`
+- **class-variance-authority**: `^0.7.1`
