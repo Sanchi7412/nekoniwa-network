@@ -41,7 +41,7 @@
     "typescript": "^5",
     "vitest": "^3.1.2"
   },
-  "type": "module",
+  "type": "commonjs",
   "eslintConfig": {
     "extends": "next/core-web-vitals",
     "rules": {
