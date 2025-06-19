@@ -28,7 +28,7 @@ Nekoniwa-Networkのホームページ
 - **Zustand**: `^5.0.3`
 - **@tanstack/react-query**: `^5.74.7`
 
-### 型定義と型チェック
+### 型定義・型チェック
 
 - **TypeScript**: `^5`
 - **Zod**: `^3.24.3`
@@ -38,20 +38,25 @@ Nekoniwa-Networkのホームページ
 - **Vitest**: `^3.1.2`
 - **@testing-library/react**: `^16.3.0`
 
-### コード品質ツール
+### コード品質・フォーマット
 
 - **ESLint**: `^9`
 - **Prettier**: `^3.5.3`
 - **Husky**: `^9.1.7`
 - **Lint-staged**: `^15.5.1`
+- **eslint-plugin-tailwindcss**
+- **eslint-plugin-import**
+- **eslint-plugin-unused-imports**
+- **eslint-config-prettier**
+- **prettier-plugin-tailwindcss**
 
-### ビルドツール
+### ビルド・開発ツール
 
 - **PNPM**: `10.9.0`
 - **PostCSS**: `8.5.3`
 - **@tailwindcss/postcss**: `^4`
 
-### その他
+### その他ユーティリティ
 
 - **clsx**: `^2.1.1`
 - **lucide-react**: `^0.503.0`
