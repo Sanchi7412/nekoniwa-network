@@ -33,7 +33,10 @@ const RootLayout: FC<RootLayoutProps> = (props) => {
       lang="ja"
       className={`${deliciousHandrawn.variable} ${yuseiMagic.variable}`}
     >
-      <body className="bg-zinc-950 text-zinc-50 font-main">
+      <body
+        className="bg-zinc-950 text-zinc-50 font-main"
+        suppressHydrationWarning
+      >
         <SoundProvider>{props.children}</SoundProvider>
       </body>
     </html>
