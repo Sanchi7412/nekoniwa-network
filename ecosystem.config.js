@@ -4,8 +4,8 @@ module.exports = {
       name: "nekoniwa-network",
       script: "pnpm",
       args: "start",
-      cwd: "/home/ubuntu/nekoniwa-network", // アプリのディレクトリを指定
-      interpreter: "/bin/bash", // 必要ならシェルを指定
+      cwd: "/home/ubuntu/nekoniwa-network",
+      interpreter: "/bin/bash",
       exec_mode: "fork",
       env: {
         NODE_ENV: "production",
