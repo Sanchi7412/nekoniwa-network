@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import { type FC } from "react";
+
 type RootLayoutProps = {
   children: React.ReactNode;
 };
