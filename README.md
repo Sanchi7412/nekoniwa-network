@@ -2,62 +2,146 @@
 
 ## 概要
 
-Nekoniwa-Networkのホームページ
+Nekoniwa-Network のポートフォリオ兼ホームページ。  
+自己紹介・提供サービスの紹介に加え、Zabbix API を利用したサーバー稼働状況のリアルタイム監視ダッシュボードを備えています。
+
+## 主な機能
+
+- 🐱 **自己紹介** — プロフィールアイコン・経歴の表示（クリックで効果音＆絵文字バーストアニメーション）
+- 🖥️ **サーバーステータス** — Zabbix API 経由で Proxmox / ネットワーク機器の稼働状況・トラフィックをリアルタイム表示
+- 🎮 **Minecraft サーバー情報** — nekoniwa Minecraft サーバーの紹介ページ
+- 🔊 **サウンド切り替え** — ヘッダーからサウンドの ON/OFF を制御
+
+## ディレクトリ構成
+
+```
+src/
+├── app/
+│   ├── layout.tsx          # ルートレイアウト
+│   ├── page.tsx            # トップページ
+│   ├── about/              # About ページ
+│   ├── mc/nekoniwa/        # Minecraft サーバー紹介
+│   └── api/zabbix/         # Zabbix API ルート
+├── components/
+│   ├── ui/                 # 汎用 UI コンポーネント
+│   ├── self-introduction.tsx
+│   ├── server-status.tsx
+│   ├── service-introduction.tsx
+│   └── emoji-burst.tsx
+├── contexts/
+│   └── sound-context.tsx   # サウンド ON/OFF コンテキスト
+├── lib/
+│   ├── utils.ts            # ユーティリティ
+│   ├── zabbix.ts           # Zabbix API クライアント
+│   └── zabbix-config.ts    # 非表示インターフェース等の設定
+└── styles/
+    └── globals.css         # グローバルスタイル
+```
 
 ## 技術スタック
 
 ### フロントエンド
 
-- **React**: `^19.0.0`
-- **Next.js**: `15.3.1`
-- **React DOM**: `^19.0.0`
+| パッケージ        | バージョン |
+| ----------------- | ---------- |
+| Next.js           | `16.1.6`   |
+| React / React DOM | `^19.2.4`  |
+| TypeScript        | `^5.9.3`   |
 
 ### スタイリング
 
-- **Tailwind CSS**: `^4`
-- **tailwind-merge**: `^3.2.0`
-- **tw-animate-css**: `^1.2.8`
+| パッケージ             | バージョン |
+| ---------------------- | ---------- |
+| Tailwind CSS           | `^4.1.18`  |
+| tailwind-merge         | `^3.4.0`   |
+| tw-animate-css         | `^1.4.0`   |
+| Motion (Framer Motion) | `^12.34.0` |
 
-### フォーム管理
+### データ取得・状態管理
 
-- **React Hook Form**: `^7.56.1`
-- **@hookform/resolvers**: `^5.0.1`
+| パッケージ           | バージョン |
+| -------------------- | ---------- |
+| TanStack React Query | `^5.90.20` |
+| Zustand              | `^5.0.11`  |
 
-### 状態管理
+### フォーム・バリデーション
 
-- **Zustand**: `^5.0.3`
-- **@tanstack/react-query**: `^5.74.7`
-
-### 型定義・型チェック
-
-- **TypeScript**: `^5`
-- **Zod**: `^3.24.3`
+| パッケージ          | バージョン |
+| ------------------- | ---------- |
+| React Hook Form     | `^7.71.1`  |
+| @hookform/resolvers | `^5.2.2`   |
+| Zod                 | `^3.25.76` |
 
 ### テスト
 
-- **Vitest**: `^3.1.2`
-- **@testing-library/react**: `^16.3.0`
+| パッケージ             | バージョン |
+| ---------------------- | ---------- |
+| Vitest                 | `^3.2.4`   |
+| @testing-library/react | `^16.3.2`  |
 
-### コード品質・フォーマット
+### コード品質
 
-- **ESLint**: `^9`
-- **Prettier**: `^3.5.3`
-- **Husky**: `^9.1.7`
-- **Lint-staged**: `^15.5.1`
-- **eslint-plugin-tailwindcss**
-- **eslint-plugin-import**
-- **eslint-plugin-unused-imports**
-- **eslint-config-prettier**
-- **prettier-plugin-tailwindcss**
-
-### ビルド・開発ツール
-
-- **PNPM**: `10.9.0`
-- **PostCSS**: `8.5.3`
-- **@tailwindcss/postcss**: `^4`
+| パッケージ  | バージョン |
+| ----------- | ---------- |
+| ESLint      | `^9.39.2`  |
+| Prettier    | `^3.8.1`   |
+| Husky       | `^9.1.7`   |
+| lint-staged | `^15.5.2`  |
 
 ### その他ユーティリティ
 
-- **clsx**: `^2.1.1`
-- **lucide-react**: `^0.503.0`
-- **class-variance-authority**: `^0.7.1`
+- **clsx** `^2.1.1`
+- **lucide-react** `^0.503.0`
+- **class-variance-authority** `^0.7.1`
+- **Recharts** `^3.7.0`
+
+## セットアップ
+
+### 前提条件
+
+- **Node.js** 18 以上
+- **PNPM** `10.9.0`
+
+### インストール
+
+```bash
+pnpm install
+```
+
+### 環境変数
+
+`.env.example` を `.env.local` にコピーして値を設定してください。
+
+```bash
+cp .env.example .env.local
+```
+
+```env
+# Zabbix Config
+ZABBIX_URL=http://example.com/zabbix/api_jsonrpc.php
+ZABBIX_USER=guest
+ZABBIX_TOKEN=your_token_here
+```
+
+### 開発サーバー起動
+
+```bash
+pnpm dev
+```
+
+`http://localhost:3000` でアクセスできます。
+
+### ビルド
+
+```bash
+pnpm build
+pnpm start
+```
+
+### Lint / Format
+
+```bash
+pnpm lint
+```
+
+コミット時に Husky + lint-staged による自動チェックが走ります。
