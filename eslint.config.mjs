@@ -5,7 +5,7 @@ import { FlatCompat } from '@eslint/eslintrc';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 // import tailwind from 'eslint-plugin-tailwindcss';
-import importPlugin from 'eslint-plugin-import';
+// import importPlugin from 'eslint-plugin-import'; // next/core-web-vitals が登録済み
 import unusedImports from 'eslint-plugin-unused-imports';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
@@ -67,9 +67,7 @@ export default tseslint.config(
 	// },
 	{
 		// eslint-plugin-importに関する設定
-		plugins: {
-			import: importPlugin,
-		},
+		// プラグインは next/core-web-vitals が既に登録しているため省略
 		rules: {
 			'import/order': [
 				'error',
