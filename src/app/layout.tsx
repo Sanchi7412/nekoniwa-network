@@ -24,7 +24,19 @@ type RootLayoutProps = {
 
 export const metadata = {
   title: "Nekoniwa Network",
-  description: "工事中...",
+  description: "Nekoniwa Network",
+  openGraph: {
+    title: "Nekoniwa Network",
+    description: "Nekoniwa Network",
+    type: "website",
+    locale: "ja_JP",
+    siteName: "Nekoniwa Network",
+  },
+  twitter: {
+    card: "summary",
+    title: "Nekoniwa Network",
+    description: "Nekoniwa Network",
+  },
 };
 
 const RootLayout: FC<RootLayoutProps> = (props) => {

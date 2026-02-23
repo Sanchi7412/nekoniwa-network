@@ -45,8 +45,10 @@ export function EmojiBurst() {
     [],
   );
 
+  const hasParticles = particles.length > 0;
+
   useEffect(() => {
-    if (particles.length === 0) return;
+    if (!hasParticles) return;
 
     const animate = () => {
       setParticles((prev) =>
@@ -69,7 +71,7 @@ export function EmojiBurst() {
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [particles.length]); // BUG-001 fix: use length instead of boolean expression
+  }, [hasParticles]);
 
   const ParticleRenderer = useMemo(() => {
     // BUG-006 fix: memoize the renderer to prevent unnecessary remounts

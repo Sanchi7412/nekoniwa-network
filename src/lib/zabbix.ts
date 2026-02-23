@@ -1,5 +1,11 @@
-const ZABBIX_URL = process.env.ZABBIX_URL;
-const ZABBIX_TOKEN = process.env.ZABBIX_TOKEN;
+function getZabbixConfig() {
+  const url = process.env.ZABBIX_URL;
+  const token = process.env.ZABBIX_TOKEN;
+  if (!url || !token) {
+    throw new Error("Zabbix credentials not configured");
+  }
+  return { url, token };
+}
 
 type ZabbixRequest = {
   jsonrpc: "2.0";
@@ -24,20 +30,18 @@ export async function zabbixRequest<T>(
   method: string,
   params: any = {},
 ): Promise<T> {
-  if (!ZABBIX_URL || !ZABBIX_TOKEN) {
-    throw new Error("Zabbix credentials not configured");
-  }
+  const { url, token } = getZabbixConfig();
 
   const payload: ZabbixRequest = {
     jsonrpc: "2.0",
     method,
     params,
     id: Date.now(),
-    auth: ZABBIX_TOKEN,
+    auth: token,
   };
 
   try {
-    const response = await fetch(ZABBIX_URL, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json-rpc",

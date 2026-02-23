@@ -2,6 +2,12 @@ export const ZABBIX_CONFIG = {
   hosts: {
     // 部分一致で非表示にするホスト名 (またはID)
     hiddenHosts: ["Template", "Zabbix server", "speedtest"],
+    // ホスト名の置換設定 (完全一致 -> 表示名)
+    hostNames: {
+      "Nekoniwa Proxmox": "Proxmox",
+      ix2215: "Network Gateway",
+      "at-x230": "L2 Managed Switch",
+    } as Record<string, string>,
   },
   network: {
     // 部分一致で非表示にするインターフェース名
@@ -19,7 +25,7 @@ export const ZABBIX_CONFIG = {
     ],
     // インターフェース名の置換設定 (完全一致 -> 表示名)
     interfaceNames: {
-      GigaEthernet0: "メイン回線(ぷらら光)",
+      GigaEthernet0: "Main Optical Fiber",
     } as Record<string, string>,
   },
   proxmox: {
