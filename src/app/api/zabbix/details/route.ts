@@ -7,6 +7,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const hostId = searchParams.get("id");
   const type = searchParams.get("type"); // "proxmox" | "network" | "other"
+  const ALLOWED_PERIODS = [900, 3600, 21600, 43200, 86400];
+  const rawPeriod = parseInt(searchParams.get("period") || "3600", 10);
+  const period = ALLOWED_PERIODS.includes(rawPeriod) ? rawPeriod : 3600;
 
   if (!hostId) {
     return NextResponse.json({ error: "Host ID required" }, { status: 400 });
@@ -76,7 +79,7 @@ export async function GET(request: Request) {
 
       details = { vms };
     } else if (type === "network") {
-      // Fetch traffic history for last 24h
+      // Fetch traffic history for the specified period
       const agentItems = await getZabbixItems(hostId, { key_: "net.if" });
       const snmpItemsIn = await getZabbixItems(hostId, { key_: "ifInOctets" });
       const snmpItemsOut = await getZabbixItems(hostId, {
@@ -94,16 +97,18 @@ export async function GET(request: Request) {
         const name = i.name;
 
         // Check if relevant traffic item
-        if (
-          !key.includes("in") &&
-          !key.includes("In") &&
-          !key.includes("out") &&
-          !key.includes("Out")
-        )
-          return;
+        const isOut =
+          key.includes("Out") ||
+          key.includes("out") ||
+          key.includes("ifOutOctets");
+        const isIn =
+          key.includes("In") ||
+          key.includes("in") ||
+          key.includes("ifInOctets");
+        if (!isIn && !isOut) return;
 
-        // Determine direction
-        const mode = key.toLowerCase().includes("in") ? "in" : "out";
+        // Determine direction (check Out first to avoid false match from "in" in "ifOutOctets")
+        const mode = isOut ? "out" : "in";
 
         // Extract interface identifier
         // Strategy 1: Parse Item Name
@@ -147,7 +152,7 @@ export async function GET(request: Request) {
           v.in.itemid,
           v.out.itemid,
         ]);
-        const timeFrom = Math.floor(Date.now() / 1000) - 86400; // 24h ago
+        const timeFrom = Math.floor(Date.now() / 1000) - period;
 
         const history = await getZabbixHistory(itemIds, timeFrom);
 

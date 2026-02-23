@@ -8,8 +8,9 @@ import {
   Router,
   Box,
   Globe,
+  Clock,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -31,6 +32,27 @@ type Host = {
   uptime: number;
 };
 
+type ChartSeries = {
+  name: string;
+  data: { time: number; value: number }[];
+};
+
+type VmInfo = {
+  id: string;
+  vmId: string;
+  name: string;
+  type: string;
+  status: string;
+  uptime: number;
+};
+
+type DetailsData =
+  | { vms: VmInfo[] }
+  | { chartData: ChartSeries[] }
+  | { message: string }
+  | { error: string }
+  | null;
+
 function formatUptime(seconds: number): string {
   if (seconds <= 0) return "N/A";
   const days = Math.floor(seconds / 86400);
@@ -45,6 +67,32 @@ function formatUptime(seconds: number): string {
   return parts.length > 0 ? parts.join(" ") : "1分未満";
 }
 
+const TRAFFIC_PERIODS = [
+  { label: "1日", value: 86400 },
+  { label: "12h", value: 43200 },
+  { label: "6h", value: 21600 },
+  { label: "1h", value: 3600 },
+  { label: "15min", value: 900 },
+] as const;
+
+function getPeriodLabel(value: number): string {
+  return TRAFFIC_PERIODS.find((p) => p.value === value)?.label || "1h";
+}
+
+function getHostType(host: { name: string }): string {
+  const name = host.name.toLowerCase();
+  if (name.includes("proxmox")) return "proxmox";
+  if (
+    name.includes("ix2215") ||
+    name.includes("network gateway") ||
+    name.includes("speedtest")
+  )
+    return "network";
+  if (name.includes("at-x230") || name.includes("l2 managed switch"))
+    return "x230";
+  return "other";
+}
+
 export function ServerStatus() {
   const [hosts, setHosts] = useState<Host[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,8 +100,9 @@ export function ServerStatus() {
 
   // Details Modal State
   const [selectedHost, setSelectedHost] = useState<Host | null>(null);
-  const [details, setDetails] = useState<any>(null);
+  const [details, setDetails] = useState<DetailsData>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [trafficPeriod, setTrafficPeriod] = useState(3600);
 
   const fetchStatus = async () => {
     setLoading(true);
@@ -73,26 +122,32 @@ export function ServerStatus() {
   useEffect(() => {
     fetchStatus();
     const interval = setInterval(fetchStatus, 30000); // Poll every 30s
+
+    // I4: Pause polling when tab is not visible
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(interval);
+      } else {
+        fetchStatus();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
-  const handleHostClick = async (host: Host) => {
-    setSelectedHost(host);
+  const fetchDetails = useCallback(async (host: Host, period: number) => {
     setLoadingDetails(true);
     setDetails(null);
 
     try {
-      // Determine type based on name
-      let type = "other";
-      const name = host.name.toLowerCase();
-      if (name.includes("proxmox")) type = "proxmox";
-      else if (name.includes("ix2215") || name.includes("speedtest"))
-        type = "network";
-      else if (name.includes("x230")) type = "x230"; // Special case for known missing data
-
-      const res = await fetch(`/api/zabbix/details?id=${host.id}&type=${type}`);
+      const type = getHostType(host);
+      const res = await fetch(
+        `/api/zabbix/details?id=${host.id}&type=${type}&period=${period}`,
+      );
       const data = await res.json();
       setDetails(data);
     } catch (error) {
@@ -100,6 +155,19 @@ export function ServerStatus() {
       setDetails({ message: "詳細情報の取得に失敗しました" });
     } finally {
       setLoadingDetails(false);
+    }
+  }, []);
+
+  const handleHostClick = (host: Host) => {
+    setSelectedHost(host);
+    setTrafficPeriod(3600);
+    fetchDetails(host, 3600);
+  };
+
+  const handlePeriodChange = (period: number) => {
+    setTrafficPeriod(period);
+    if (selectedHost) {
+      fetchDetails(selectedHost, period);
     }
   };
 
@@ -119,13 +187,13 @@ export function ServerStatus() {
         </div>
       );
 
-    if (details.error) {
+    if ("error" in details) {
       return (
         <div className="text-center p-8 text-red-500">{details.error}</div>
       );
     }
 
-    if (details.vms) {
+    if ("vms" in details) {
       return (
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-4">
@@ -170,22 +238,26 @@ export function ServerStatus() {
       );
     }
 
-    if (details.chartData) {
+    if ("chartData" in details) {
+      const showDate = trafficPeriod >= 21600; // 6h以上は日付も表示
       const timeMap = new Map<number, any>();
-      details.chartData.forEach((series: any) => {
+      details.chartData.forEach((series) => {
         series.data.forEach((point: any) => {
           if (!timeMap.has(point.time)) {
-            timeMap.set(point.time, {
-              time: point.time,
-              formattedTime: new Date(point.time * 1000)
-                .toLocaleTimeString("ja-JP", {
-                  year: "numeric",
+            const dateOptions: Intl.DateTimeFormatOptions = showDate
+              ? {
                   month: "numeric",
                   day: "numeric",
                   hour: "2-digit",
                   minute: "2-digit",
-                })
-                .replace(/\//g, "/"), // Ensure format like 2/10 15:00. Locale might give "2/10 15:00" or similar.
+                }
+              : { hour: "2-digit", minute: "2-digit" };
+            timeMap.set(point.time, {
+              time: point.time,
+              formattedTime: new Date(point.time * 1000).toLocaleString(
+                "ja-JP",
+                dateOptions,
+              ),
             });
           }
           timeMap.get(point.time)[series.name] = point.value;
@@ -206,11 +278,30 @@ export function ServerStatus() {
 
       return (
         <div className="h-[400px] w-full">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-5 h-5 text-zinc-500" />
-            <h3 className="text-lg font-semibold">
-              ネットワークトラフィック (24時間)
-            </h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-zinc-500" />
+              <h3 className="text-lg font-semibold">
+                ネットワークトラフィック ({getPeriodLabel(trafficPeriod)})
+              </h3>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4 text-zinc-500 mr-1" />
+              {TRAFFIC_PERIODS.map((p) => (
+                <button
+                  key={p.value}
+                  onClick={() => handlePeriodChange(p.value)}
+                  className={cn(
+                    "px-2 py-1 text-xs rounded-md transition-colors",
+                    trafficPeriod === p.value
+                      ? "bg-green-600 text-white"
+                      : "bg-zinc-700/50 text-zinc-400 hover:bg-zinc-600/50 hover:text-zinc-200",
+                  )}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
@@ -271,7 +362,7 @@ export function ServerStatus() {
                 }}
               />
               <Legend />
-              {details.chartData.map((series: any, index: number) => (
+              {details.chartData.map((series, index: number) => (
                 <Line
                   key={series.name}
                   type="monotone"
@@ -288,7 +379,7 @@ export function ServerStatus() {
       );
     }
 
-    if (selectedHost?.name.toLowerCase().includes("x230")) {
+    if (selectedHost && getHostType(selectedHost) === "x230") {
       return (
         <div className="p-8 text-center text-zinc-500">
           <Router className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -304,7 +395,7 @@ export function ServerStatus() {
       <div className="p-8 text-center text-zinc-500">
         <Globe className="w-12 h-12 mx-auto mb-4 opacity-50" />
         <p className="text-lg font-medium">
-          {details.message || "詳細情報はありません。"}
+          {"message" in details ? details.message : "詳細情報はありません。"}
         </p>
       </div>
     );
@@ -340,8 +431,16 @@ export function ServerStatus() {
             : hosts.map((host) => (
                 <div
                   key={host.id}
-                  className="p-4 rounded-lg border border-zinc-700/50 bg-zinc-800/50 flex items-center justify-between transition-all hover:shadow-md hover:translate-y-[-2px] cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  className="p-4 rounded-lg border border-zinc-700/50 bg-zinc-800/50 flex items-center justify-between transition-all hover:shadow-md hover:translate-y-[-2px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500/50"
                   onClick={() => handleHostClick(host)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleHostClick(host);
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-3">
                     <div

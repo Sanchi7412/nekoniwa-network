@@ -33,7 +33,7 @@ const Home: FC = () => {
         )}
       </button>
 
-      <div className="max-w-4xl mx-auto px-4 py-16 space-y-8 relative z-6">
+      <div className="max-w-4xl mx-auto px-4 py-16 space-y-8 relative z-10">
         <header className="text-center py-80">
           <p className="text-2xl lg:text-2xl font-title tracking-tight text-white drop-shadow-lg">
             ~ Playful &amp; Fun ~

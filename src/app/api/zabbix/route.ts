@@ -16,10 +16,22 @@ export async function GET() {
       );
     });
 
+    // Helper: replace host name using config (case-insensitive partial match)
+    const resolveHostName = (name: string): string => {
+      for (const [key, value] of Object.entries(
+        ZABBIX_CONFIG.hosts.hostNames,
+      )) {
+        if (name.toLowerCase().includes(key.toLowerCase())) {
+          return value;
+        }
+      }
+      return name;
+    };
+
     // Simplified data for frontend
     const data = visibleHosts.map((host: any) => ({
       id: host.hostid,
-      name: host.name,
+      name: resolveHostName(host.name),
       status: host.status === "0" ? "online" : "offline", // Zabbix status: 0 is monitored (online-ish), 1 is unmonitored
       uptime:
         host.items && host.items.length > 0
