@@ -421,8 +421,16 @@ export function ServerStatus() {
       </div>
 
       {error ? (
-        <div className="text-red-500 text-sm bg-red-900/20 p-4 rounded-lg">
-          {error}
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-yellow-500/10 flex items-center justify-center mb-4">
+            <Server className="w-8 h-8 text-yellow-500" />
+          </div>
+          <p className="text-lg font-semibold text-yellow-500 mb-1">
+            メンテナンス中
+          </p>
+          <p className="text-sm text-zinc-500">
+            現在サーバー情報を取得できません。しばらくお待ちください。
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
